@@ -318,6 +318,42 @@ export function roof(anisotropy) {
   };
 }
 
+// A cluster of leaves on a transparent background, used on cards that build tree crowns and shrubs.
+export function leaves(anisotropy) {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext('2d');
+  const next = random(91);
+  for (let index = 0; index < 170; index += 1) {
+    const x = size / 2 + (next() - 0.5) * size * 0.84;
+    const y = size / 2 + (next() - 0.5) * size * 0.84;
+    if ((x - size / 2) ** 2 + (y - size / 2) ** 2 > (size * 0.43) ** 2) continue;
+    const length = 15 + next() * 13;
+    const width = length * (0.36 + next() * 0.14);
+    const green = 72 + next() * 70;
+    context.save();
+    context.translate(x, y);
+    context.rotate(next() * Math.PI * 2);
+    context.fillStyle = `rgb(${Math.round(green * (0.5 + next() * 0.22))}, ${Math.round(green)}, ${Math.round(green * (0.26 + next() * 0.12))})`;
+    context.beginPath();
+    context.ellipse(0, 0, length / 2, width / 2, 0, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = 'rgba(20, 30, 10, 0.35)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(-length / 2, 0);
+    context.lineTo(length / 2, 0);
+    context.stroke();
+    context.restore();
+  }
+  const map = new THREE.CanvasTexture(canvas);
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = anisotropy;
+  return map;
+}
+
 // Soft contact shadows: a round blob and a strip that fades out from one edge.
 export function contactShadows() {
   const size = 128;

@@ -19,7 +19,7 @@ To projekt demonstracyjny. Firma Cieniste, jej ceny i produkty są fikcyjne, a f
 - Pięć kolorów konstrukcji, w tym drewnopodobny z teksturą.
 - Rolety ZIP z trzech stron z regulacją opuszczenia i oświetlenie LED widoczne w trybie wieczornym.
 - Widok z przodu, z boku i z góry, obracanie myszą albo palcem. Kamera dopasowuje się do wielkości pergoli i ekranu.
-- Realistyczny wygląd bez pobierania plików graficznych: światło i odbicia nieba, miękkie cienie oraz tekstury desek, tynku, trawy, drewna i tkanin rysowane w kodzie. Model rysuje się tylko wtedy, gdy coś się zmienia, więc nie obciąża telefonu.
+- Realistyczny wygląd bez pobierania plików graficznych: niebo z chmurami i jego odbicia, miękkie cienie, przyciemnienia w zakamarkach (ambient occlusion) i tekstury rysowane w kodzie. Wokół tarasu jest ogród z płotem, drzewami i krzewami, a przez okna osadzone w murze widać wnętrze domu, wieczorem oświetlone. Model rysuje się tylko wtedy, gdy coś się zmienia, więc nie obciąża telefonu.
 - Cena liczona od razu z cennika, z rozbiciem na pozycje.
 - Wersja polska z cenami w złotych i niemiecka w euro.
 - Link do konfiguracji: ustawienia i język są zapisane w adresie strony, więc link można komuś wysłać.
@@ -30,7 +30,7 @@ To projekt demonstracyjny. Firma Cieniste, jej ceny i produkty są fikcyjne, a f
 
 | Warstwa | Narzędzia |
 |---|---|
-| Model 3D | Three.js (WebGL): materiały PBR, oświetlenie z mapy nieba, tekstury generowane w kodzie, OrbitControls |
+| Model 3D | Three.js (WebGL): materiały PBR, oświetlenie z mapy nieba, ambient occlusion (GTAO), tekstury generowane w kodzie, OrbitControls |
 | Strona | HTML, CSS i JavaScript w modułach, bez frameworka |
 | Budowanie | Własny skrypt w Node.js bez zależności |
 | Testy | `node:test` dla cennika, linku i formularza, Playwright w Microsoft Edge dla całej strony |
