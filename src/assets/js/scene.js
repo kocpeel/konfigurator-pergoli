@@ -299,8 +299,8 @@ export async function createViewer(canvas) {
 
   const satin = () => new THREE.Vector2(0.3, 0.3);
   // Inside the house only a little daylight reaches the walls, so they take little of the sky light.
-  const indoor = (options) => new THREE.MeshStandardMaterial({ side: THREE.BackSide, envMapIntensity: 0.1, ...options });
-  const furnishing = (options) => new THREE.MeshStandardMaterial({ envMapIntensity: 0.1, ...options });
+  const indoor = (options) => new THREE.MeshStandardMaterial({ side: THREE.BackSide, envMapIntensity: 0.06, ...options });
+  const furnishing = (options) => new THREE.MeshStandardMaterial({ envMapIntensity: 0.06, ...options });
   const materials = {
     frame: new THREE.MeshPhysicalMaterial({ color: '#383e42', roughness: 0.45, clearcoat: 0.3, clearcoatRoughness: 0.45, normalMap: maps.powder, normalScale: satin() }),
     // Opal polycarbonate: milky white, lets diffuse light through and has a soft sheen on top.
@@ -315,11 +315,13 @@ export async function createViewer(canvas) {
     roof: new THREE.MeshStandardMaterial({ map: maps.roof.map, normalMap: maps.roof.normal, roughness: 0.5, metalness: 0.3 }),
     fascia: new THREE.MeshStandardMaterial({ color: '#3a3d41', roughness: 0.6 }),
     windowFrame: new THREE.MeshPhysicalMaterial({ color: '#33373b', roughness: 0.4, clearcoat: 0.3, normalMap: maps.powder, normalScale: satin() }),
-    // Coated window glass reflects more of the sky than plain glass.
-    windowGlass: new THREE.MeshPhysicalMaterial({ color: '#e8f0f1', transmission: 1, roughness: 0.02, thickness: 0.02, ior: 1.9 }),
-    roomWall: indoor({ color: '#e4ded5', roughness: 0.95 }),
-    roomCeiling: indoor({ color: '#efebe5', roughness: 0.95 }),
-    roomFloor: indoor({ color: '#c2a585', map: maps.wood.map, normalMap: maps.wood.normal, roughness: 0.6 }),
+    // Coated window glass with a faint green tint reflects much more of the sky than plain glass.
+    windowGlass: new THREE.MeshPhysicalMaterial({ color: '#dfe9e7', transmission: 1, roughness: 0.02, thickness: 0.02, ior: 2.3 }),
+    // Brushed aluminium door threshold.
+    threshold: new THREE.MeshStandardMaterial({ color: '#9b9fa4', metalness: 0.7, roughness: 0.35 }),
+    roomWall: indoor({ color: '#c7c1b8', roughness: 0.95 }),
+    roomCeiling: indoor({ color: '#d6d1c9', roughness: 0.95 }),
+    roomFloor: indoor({ color: '#8a735f', map: maps.wood.map, normalMap: maps.wood.normal, roughness: 0.6 }),
     sideboard: furnishing({ color: '#3b3936', roughness: 0.55 }),
     pictureFrame: furnishing({ color: '#1f1f1f', roughness: 0.5 }),
     art: furnishing({ color: '#8fa1a6', map: maps.fabric.map, roughness: 0.9 }),
@@ -405,7 +407,8 @@ export async function createViewer(canvas) {
   }
 
   // A door or window set 16 cm deep into the wall: frame profiles, a middle post and clear glass.
-  function opening(width, height, x, bottom, wallFace, { sill = false } = {}) {
+  // A window gets a metal sill, a door an aluminium threshold, so no bare plaster shows under the frame.
+  function opening(width, height, x, bottom, wallFace, { sill = false, threshold = false } = {}) {
     const group = new THREE.Group();
     const profile = 0.07;
     const z = wallFace - 0.16;
@@ -426,9 +429,20 @@ export async function createViewer(canvas) {
     glass.position.set(x, bottom + height / 2, z);
     group.add(middle, glass);
     if (sill) {
-      const board = member(width + 0.06, 0.03, 0.2, frame, { radius: 0.006 });
-      board.position.set(x, bottom - 0.015, wallFace - 0.06);
-      group.add(board);
+      // Sheet-metal sill: it lies 1 cm above the bottom reveal (never in the same plane as the plaster),
+      // runs from under the frame to 5 cm past the wall and ends in a drip edge.
+      const depth = 0.18;
+      const board = member(width + 0.04, 0.012, depth, frame, { radius: 0.003 });
+      board.position.set(x, bottom + 0.006, wallFace - 0.13 + depth / 2);
+      const drip = member(width + 0.04, 0.04, 0.01, frame, { radius: 0.003 });
+      // 1 mm lower than the sill top, so the two top faces never share a plane.
+      drip.position.set(x, bottom - 0.009, wallFace + 0.05);
+      group.add(board, drip);
+    }
+    if (threshold) {
+      const plate = member(width, 0.012, 0.13, materials.threshold, { radius: 0.003, shadow: false });
+      plate.position.set(x, bottom + 0.006, wallFace - 0.065);
+      group.add(plate);
     }
     return group;
   }
@@ -453,7 +467,7 @@ export async function createViewer(canvas) {
   }
 
   // The room behind the glass: floor, walls, ceiling and sheer curtains, seen from the garden.
-  function interior(wallFace, door) {
+  function interior(wallFace, door, pane) {
     const depth = 5;
     const height = 2.85;
     const box = worldUV(new THREE.BoxGeometry(2 * HOUSE.half - 0.4, height, depth), 'x');
@@ -466,6 +480,10 @@ export async function createViewer(canvas) {
       curtain.position.set(x, DECK + 1.3, wallFace - 0.5);
       world.add(curtain);
     }
+    // A sheer net curtain across the window, as in most Polish houses.
+    const net = new THREE.Mesh(curtainGeometry(pane.x1 - pane.x0 + 0.1, pane.y1 - pane.y0 + 0.15), materials.curtain);
+    net.position.set((pane.x0 + pane.x1) / 2, (pane.y0 + pane.y1) / 2, wallFace - 0.47);
+    world.add(net);
     // A sideboard, a picture and a pendant lamp give the room depth when seen through the glass.
     const backWall = wallFace - 0.4 - depth;
     const sideboard = member(1.8, 0.75, 0.45, materials.sideboard, { radius: 0.01 });
@@ -668,10 +686,10 @@ export async function createViewer(canvas) {
       world.add(plinth);
     }
     world.add(
-      opening(DOOR.width, DOOR.height, DOOR.x, door.y0, wallFace),
+      opening(DOOR.width, DOOR.height, DOOR.x, door.y0, wallFace, { threshold: true }),
       opening(WINDOW.width, WINDOW.height, WINDOW.x, pane.y0, wallFace, { sill: true }),
     );
-    interior(wallFace, door);
+    interior(wallFace, door, pane);
 
     const ridge = { y: HOUSE.ridge, z: wallFace - HOUSE.depth / 2 };
     const pitch = (ridge.y - 4.45) / (HOUSE.depth / 2);
