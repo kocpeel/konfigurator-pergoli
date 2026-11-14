@@ -1,0 +1,181 @@
+---
+title: Konfigurator pergoli 3D | Cieniste
+description: Zaprojektuj pergolę w 3D: wymiary, dach z poliwęglanu, szkła albo lamel, kolor, rolety ZIP i LED. Cena liczy się od razu. Projekt demonstracyjny.
+page: home
+script: app
+---
+    <section class="intro container">
+      <span class="eyebrow" data-i18n="hero.eyebrow">Zadaszenia tarasowe na wymiar</span>
+      <h1 data-i18n="hero.title">Zaprojektuj swoją pergolę w 3D</h1>
+      <p class="lead" data-i18n="hero.lead">Wybierz wymiary, dach, kolor i dodatki. Model i cena zmieniają się od razu, a gotową konfigurację wyślesz nam do wyceny jednym kliknięciem.</p>
+    </section>
+
+    <section class="configurator container" id="konfigurator" aria-label="Konfigurator">
+      <div class="stage">
+        <div class="viewport" id="widok">
+          <canvas id="scena" role="img" aria-label="Model 3D pergoli. Opis konfiguracji jest w podsumowaniu obok." data-i18n-aria="view.aria"></canvas>
+          <p class="viewport-error" id="brak-3d" hidden data-i18n="view.error">Ta przeglądarka nie wyświetla grafiki 3D. Konfiguracja i cena działają normalnie.</p>
+          <div class="toolbar" role="toolbar" aria-label="Widok modelu" data-i18n-aria="view.toolbar">
+            <button type="button" data-view="front" data-i18n="view.front">Przód</button>
+            <button type="button" data-view="side" data-i18n="view.side">Bok</button>
+            <button type="button" data-view="top" data-i18n="view.top">Góra</button>
+            <button type="button" id="obracaj" aria-pressed="false" data-i18n="view.rotate">Obracaj</button>
+            <button type="button" id="wieczor" aria-pressed="false" data-i18n="view.night">Wieczór</button>
+          </div>
+        </div>
+        <p class="viewport-hint" data-i18n="view.hint">Przeciągnij, żeby obrócić. Kółkiem myszy albo dwoma palcami przybliżysz.</p>
+      </div>
+
+      <form class="panel" id="konfiguracja" novalidate>
+        <fieldset class="step">
+          <legend><span class="step-no" aria-hidden="true">1</span><span data-i18n="step.size">Wymiary</span></legend>
+          <div class="range">
+            <label for="szerokosc" data-i18n="size.width">Szerokość</label>
+            <output for="szerokosc" id="szerokosc-wartosc"></output>
+            <input type="range" id="szerokosc" name="width" min="3" max="7" step="0.5">
+          </div>
+          <div class="range">
+            <label for="wysieg" data-i18n="size.depth">Wysięg</label>
+            <output for="wysieg" id="wysieg-wartosc"></output>
+            <input type="range" id="wysieg" name="depth" min="2" max="5" step="0.5">
+          </div>
+          <div class="range">
+            <label for="wysokosc" data-i18n="size.height">Wysokość</label>
+            <output for="wysokosc" id="wysokosc-wartosc"></output>
+            <input type="range" id="wysokosc" name="height" min="2.2" max="3" step="0.1">
+          </div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="step-no" aria-hidden="true">2</span><span data-i18n="step.mount">Montaż</span></legend>
+          <div class="segmented">
+            <label><input type="radio" name="mount" value="sciana"><span data-i18n="mount.sciana">Przy ścianie domu</span></label>
+            <label><input type="radio" name="mount" value="wolnostojaca"><span data-i18n="mount.wolnostojaca">Wolnostojąca</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="step-no" aria-hidden="true">3</span><span data-i18n="step.roof">Dach</span></legend>
+          <div class="cards">
+            <label class="card-option"><input type="radio" name="roof" value="poliweglan"><span><strong data-i18n="roof.poliweglan">Poliwęglan</strong><small data-i18n="roof.poliweglan.note">Rozprasza światło i chroni przed deszczem</small></span></label>
+            <label class="card-option"><input type="radio" name="roof" value="szklo"><span><strong data-i18n="roof.szklo">Szkło</strong><small data-i18n="roof.szklo.note">Pełna przejrzystość, bezpieczne szkło VSG</small></span></label>
+            <label class="card-option"><input type="radio" name="roof" value="lamele"><span><strong data-i18n="roof.lamele">Lamele</strong><small data-i18n="roof.lamele.note">Obrotowe lamele: cień albo słońce, jak wolisz</small></span></label>
+          </div>
+          <div class="range" id="kat-pole" hidden>
+            <label for="kat" data-i18n="roof.angle">Kąt lamel</label>
+            <output for="kat" id="kat-wartosc"></output>
+            <input type="range" id="kat" name="angle" min="0" max="90" step="5">
+          </div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="step-no" aria-hidden="true">4</span><span data-i18n="step.color">Kolor konstrukcji</span></legend>
+          <div class="swatches">
+            <label class="swatch"><input type="radio" name="color" value="7016"><span><i style="--swatch:#383e42"></i><span data-i18n="color.7016">Antracyt RAL 7016</span></span></label>
+            <label class="swatch"><input type="radio" name="color" value="9016"><span><i style="--swatch:#eeede6"></i><span data-i18n="color.9016">Biały RAL 9016</span></span></label>
+            <label class="swatch"><input type="radio" name="color" value="9005"><span><i style="--swatch:#171717"></i><span data-i18n="color.9005">Czarny RAL 9005</span></span></label>
+            <label class="swatch"><input type="radio" name="color" value="7024"><span><i style="--swatch:#4b4e54"></i><span data-i18n="color.7024">Grafit RAL 7024</span></span></label>
+            <label class="swatch"><input type="radio" name="color" value="drewno"><span><i class="wood"></i><span data-i18n="color.drewno">Drewnopodobny</span></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="step-no" aria-hidden="true">5</span><span data-i18n="step.extras">Dodatki</span></legend>
+          <p class="field-label" data-i18n="extras.screens">Rolety ZIP</p>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="screens" value="front"><span data-i18n="side.front">Przód</span></label>
+            <label class="chip"><input type="checkbox" name="screens" value="lewa"><span data-i18n="side.lewa">Lewa strona</span></label>
+            <label class="chip"><input type="checkbox" name="screens" value="prawa"><span data-i18n="side.prawa">Prawa strona</span></label>
+          </div>
+          <div class="range" id="rolety-pole" hidden>
+            <label for="opuszczenie" data-i18n="extras.drop">Opuszczenie rolet</label>
+            <output for="opuszczenie" id="opuszczenie-wartosc"></output>
+            <input type="range" id="opuszczenie" name="drop" min="0" max="100" step="10">
+          </div>
+          <label class="switch">
+            <input type="checkbox" name="led" value="1" role="switch">
+            <span><strong data-i18n="extras.led">Oświetlenie LED</strong><small data-i18n="extras.led.note">Taśmy LED w belkach, ściemniane pilotem</small></span>
+          </label>
+        </fieldset>
+
+        <section class="price-card" aria-labelledby="cena-tytul">
+          <h2 id="cena-tytul" data-i18n="summary.title">Cena orientacyjna</h2>
+          <p class="price" id="cena" aria-live="polite"></p>
+          <p class="hint" data-i18n="summary.note">Brutto, z montażem. Ostateczną cenę podamy po pomiarze.</p>
+          <details class="breakdown">
+            <summary data-i18n="summary.details">Z czego to wynika</summary>
+            <ul id="rozbicie"></ul>
+          </details>
+          <div class="price-actions">
+            <button type="button" class="btn btn-primary" id="wyslij" data-i18n="summary.send">Wyślij do wyceny</button>
+            <button type="button" class="btn btn-ghost" id="kopiuj" data-i18n="summary.share">Kopiuj link do konfiguracji</button>
+          </div>
+          <p class="hint" id="kopiuj-status" role="status"></p>
+        </section>
+      </form>
+    </section>
+
+    <section class="how container" id="jak-to-dziala" aria-labelledby="jak-tytul">
+      <h2 id="jak-tytul" data-i18n="how.title">Jak to działa</h2>
+      <ol class="how-steps">
+        <li><strong data-i18n="how.1.title">Skonfiguruj</strong><span data-i18n="how.1.text">Ustaw wymiary, dach, kolor i dodatki. Cena przelicza się z naszego cennika.</span></li>
+        <li><strong data-i18n="how.2.title">Wyślij do wyceny</strong><span data-i18n="how.2.text">Dostajemy konfigurację z podsumowaniem, więc nie musimy dopytywać o każdy szczegół.</span></li>
+        <li><strong data-i18n="how.3.title">Pomiar i montaż</strong><span data-i18n="how.3.text">Przyjeżdżamy na pomiar, potwierdzamy cenę i montujemy zadaszenie w jeden dzień.</span></li>
+      </ol>
+    </section>
+
+    <section class="about container" id="o-projekcie" aria-labelledby="projekt-tytul">
+      <h2 id="projekt-tytul" data-i18n="about.title">O projekcie</h2>
+      <p data-i18n="about.text">To projekt demonstracyjny konfiguratora produktu na wymiar: model 3D w przeglądarce (Three.js), cena liczona z tabel w złotych albo euro, link do zapisanej konfiguracji i formularz zapytania. Firma Cieniste, jej ceny i produkty są fikcyjne.</p>
+      <p><a href="https://github.com/kocpeel/konfigurator-pergoli" data-i18n="about.code">Kod źródłowy na GitHubie</a></p>
+    </section>
+
+    <dialog class="quote" id="zapytanie" aria-labelledby="zapytanie-tytul">
+      <div class="quote-inner">
+        <div class="quote-preview">
+          <img id="podglad" alt="" width="640" height="420">
+          <ul class="spec" id="podsumowanie"></ul>
+          <p class="price" id="cena-zapytanie"></p>
+        </div>
+        <div class="quote-form" id="zapytanie-tresc">
+          <h2 id="zapytanie-tytul" data-i18n="form.title">Wyślij konfigurację do wyceny</h2>
+          <p class="hint" data-i18n="form.lead">Odpowiemy w ciągu jednego dnia roboczego z dokładną wyceną i terminem pomiaru.</p>
+          <form id="formularz" novalidate>
+            <div class="field">
+              <label for="f-name" data-i18n="form.name">Imię i nazwisko</label>
+              <input id="f-name" name="name" autocomplete="name" aria-describedby="f-name-error">
+              <span class="field-error" id="f-name-error"></span>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="f-email" data-i18n="form.email">E-mail</label>
+                <input id="f-email" name="email" type="email" autocomplete="email" aria-describedby="f-hint f-email-error">
+                <span class="field-error" id="f-email-error"></span>
+              </div>
+              <div class="field">
+                <label for="f-phone" data-i18n="form.phone">Telefon</label>
+                <input id="f-phone" name="phone" type="tel" autocomplete="tel" aria-describedby="f-hint f-phone-error">
+                <span class="field-error" id="f-phone-error"></span>
+              </div>
+            </div>
+            <p class="hint" id="f-hint" data-i18n="form.hint">Podaj e-mail albo telefon.</p>
+            <div class="field">
+              <label for="f-city" data-i18n="form.city">Miejscowość</label>
+              <input id="f-city" name="city" autocomplete="address-level2">
+            </div>
+            <div class="field">
+              <label for="f-message" data-i18n="form.message">Wiadomość (opcjonalnie)</label>
+              <textarea id="f-message" name="message" rows="3"></textarea>
+            </div>
+            <label class="checkbox"><input type="checkbox" id="f-consent" name="consent" aria-describedby="f-consent-error"> <span data-i18n="form.consent">Zgadzam się na kontakt w sprawie wyceny.</span></label>
+            <span class="field-error" id="f-consent-error"></span>
+            <div class="quote-actions">
+              <button type="submit" class="btn btn-primary" data-i18n="form.submit">Wyślij zapytanie</button>
+              <button type="button" class="btn btn-ghost" data-close data-i18n="form.cancel">Wróć do konfiguratora</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <section class="print-sheet" id="wydruk" aria-hidden="true"></section>
