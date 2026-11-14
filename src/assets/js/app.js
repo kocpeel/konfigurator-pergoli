@@ -229,10 +229,15 @@ for (const name of FIELDS) {
 }
 
 // The 3D part loads separately, so the configurator and price still work where WebGL is unavailable.
+// Textures are drawn in small steps while it loads, so the page stays responsive.
 import('./scene.js')
-  .then(({ createViewer }) => {
-    viewer = createViewer(canvas);
+  .then(({ createViewer }) => createViewer(canvas))
+  .then((created) => {
+    viewer = created;
     viewer.update(config);
+    // Buttons pressed while the model was still loading.
+    viewer.setNight(document.getElementById('wieczor').getAttribute('aria-pressed') === 'true');
+    viewer.setAutoRotate(document.getElementById('obracaj').getAttribute('aria-pressed') === 'true');
     document.getElementById('widok').classList.add('is-ready');
   })
   .catch(() => {
