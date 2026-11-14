@@ -594,8 +594,9 @@ export async function createViewer(canvas) {
     const group = new THREE.Group();
     const pot = member(0.44, 0.62, 0.44, materials.planter, { along: 'y', radius: 0.02 });
     pot.position.set(0, DECK + 0.31, 0);
+    // Soil fills the planter to 1 cm above its rim.
     const soil = member(0.39, 0.02, 0.39, materials.soil, { radius: 0, shadow: false });
-    soil.position.set(0, DECK + 0.6, 0);
+    soil.position.set(0, DECK + 0.62, 0);
     const count = 90;
     const grass = new THREE.InstancedMesh(blades, materials.blades, count);
     const next = seeded(seed);
@@ -632,8 +633,9 @@ export async function createViewer(canvas) {
     const legs = 0.07;
     const baseHeight = 0.24;
     const seatLevel = DECK + legs + baseHeight;
-    const base = member(length, baseHeight, depth, materials.sofaFrame, { radius: 0.02 });
-    base.position.set(0, DECK + legs + baseHeight / 2, 0);
+    // The base fits between the armrests and sits 2 cm back, so no face of it lines up with an armrest face.
+    const base = member(length - 2 * arm, baseHeight, depth - 0.02, materials.sofaFrame, { radius: 0.02 });
+    base.position.set(0, DECK + legs + baseHeight / 2, -0.01);
     group.add(base);
     for (const side of [-1, 1]) {
       const armrest = member(arm, 0.56, depth, materials.sofaFrame, { along: 'z', radius: 0.03 });
@@ -678,10 +680,11 @@ export async function createViewer(canvas) {
     const pane = { x0: WINDOW.x - WINDOW.width / 2, x1: WINDOW.x + WINDOW.width / 2, y0: DECK + WINDOW.sill, y1: DECK + WINDOW.sill + WINDOW.height };
 
     frontWall(wallFace, [door, pane]);
-    // The plinth stops at the door, so nothing sits in the door opening.
+    // The plinth is a 1.5 cm facing layer on the wall surface and stops at the door. Its ends lie in front of
+    // the wall, so they never share a plane with the door reveals (that made the door corners flicker).
     for (const [x0, x1] of [[-HOUSE.half, door.x0], [door.x1, HOUSE.half]]) {
-      const centre = new THREE.Vector3((x0 + x1) / 2, 0.16, wallFace - 0.2);
-      const plinth = member(x1 - x0, 0.32, 0.43, materials.plinth, { radius: 0, shadow: false, origin: centre });
+      const centre = new THREE.Vector3((x0 + x1) / 2, 0.16, wallFace + 0.0075);
+      const plinth = member(x1 - x0, 0.32, 0.015, materials.plinth, { radius: 0, shadow: false, origin: centre });
       plinth.position.copy(centre);
       world.add(plinth);
     }
@@ -694,8 +697,9 @@ export async function createViewer(canvas) {
     const ridge = { y: HOUSE.ridge, z: wallFace - HOUSE.depth / 2 };
     const pitch = (ridge.y - 4.45) / (HOUSE.depth / 2);
     for (const side of [-1, 1]) {
-      const sideWall = member(0.4, HOUSE.height, HOUSE.depth, materials.wall, { along: 'z', radius: 0 });
-      sideWall.position.set(side * (HOUSE.half - 0.2), HOUSE.height / 2, wallFace - HOUSE.depth / 2);
+      // Side walls start behind the front wall instead of overlapping it, so the corners do not flicker.
+      const sideWall = member(0.4, HOUSE.height, HOUSE.depth - 0.4, materials.wall, { along: 'z', radius: 0 });
+      sideWall.position.set(side * (HOUSE.half - 0.2), HOUSE.height / 2, wallFace - 0.4 - (HOUSE.depth - 0.4) / 2);
       const shape = new THREE.Shape([
         new THREE.Vector2(wallFace, HOUSE.height),
         new THREE.Vector2(wallFace - HOUSE.depth, HOUSE.height),
@@ -833,9 +837,10 @@ export async function createViewer(canvas) {
       const cassette = member(isFront ? span : 0.11, 0.12, isFront ? 0.11 : span, frame, { along, radius: 0.02 });
       cassette.position.set(x, top - BEAM - 0.06, z);
       pergola.add(cassette);
+      // Guide rails stand just inside the opening, against the posts (not inside them).
       for (const end of [-1, 1]) {
         const rail = member(isFront ? 0.035 : 0.045, clear - 0.12, isFront ? 0.045 : 0.035, frame, { along: 'y', radius: 0.004 });
-        rail.position.set(isFront ? end * (span / 2 + 0.0175) : x, DECK + (clear - 0.12) / 2, isFront ? z : end * (span / 2 + 0.0175));
+        rail.position.set(isFront ? end * (span / 2 - 0.0175) : x, DECK + (clear - 0.12) / 2, isFront ? z : end * (span / 2 - 0.0175));
         pergola.add(rail);
       }
       if (drop > 0.02) {
